@@ -16,8 +16,8 @@ namespace Transport_D_2
             {
                 line = Console.ReadLine();
                 if (line.ToLower().Equals("q") || line.ToLower().Equals("quit")) break;
-                text.setText(line);
-                text.descriptAndRun();
+                text.SetText(line);
+                text.DescriptAndRun();
             }
         }
     }

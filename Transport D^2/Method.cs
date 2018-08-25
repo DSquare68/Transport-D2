@@ -8,6 +8,8 @@ namespace Transport_D_2
 {
     class Method
     {
+        static string[] mediaExtensions = { ".AVI", ".MP4", ".DIVX", ".WMV", ".MKV", ".avi", ".mp4", ".divx", ".wmv", ".mkv" };
+
         public static void drivers(bool details)
         {
             DriveInfo[] allDrives = DriveInfo.GetDrives();
@@ -35,67 +37,78 @@ namespace Transport_D_2
             }
         }
 
-        internal static void transport(string name, string source, string dest)
+        internal static void transport(string name, string source, string dest,bool showTransported,int startEpisode, int endEpisode)
         {
             String path = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             DirectoryInfo d = new DirectoryInfo(path + "\\" + source);
             FileInfo[] filesInfo = d.GetFiles();
             DirectoryInfo[] directoryInfo = d.GetDirectories();
-            if (filesInfo.Length == 0)
-            {
-                int k = 0;
-                foreach(DirectoryInfo info in directoryInfo)
-                {
-                    if (info.Name.Contains(name))
-                    {
-                        k++;
-                    }
-                }
-                Counter.setData(k);
-            }else
-            {
-                int k = 0;
-                foreach (FileInfo info in filesInfo)
-                {
-                    if (info.Name.Contains(name))
-                    {
-                        k++;
-                    }
-                }
-                Counter.setData(k);
-            }
-            Thread thread = new Thread(new ThreadStart(Counter.printPercent));
-            thread.Start();
+
+            //Counting items to transfer
             if (name.Equals("all"))
             {
-                DirectoryInfo dI = new DirectoryInfo(path + "\\" + source);
-                DirectoryInfo[] destDir = dI.GetDirectories();
+                DirectoryInfo dSeriale = new DirectoryInfo(path + "\\" + "Seriale");
+                DirectoryInfo dFilmy = new DirectoryInfo(path + "\\" + "Filmy");
+                DirectoryInfo dAnime = new DirectoryInfo(path + "\\" + "Anime");
+
+                int k = 0;
+                k += sumVideoFrom(dSeriale);
+                k += sumVideoFrom(dFilmy);
+                k += sumVideoFrom(dAnime);
+                Counter.setData(k);
+
+
+            }
+            else
+            {
+                
+                
+
                 if (filesInfo.Length == 0)
                 {
-                    Counter.setData(directoryInfo.Length);
+                    int k = 0;
                     foreach (DirectoryInfo info in directoryInfo)
                     {
-                        Microsoft.VisualBasic.FileIO.FileSystem.CopyDirectory(info.FullName, dest + findDest(name,info.Name, destDir) + info.Name);
-                        Counter.countNumber++;
+                        if (info.Name.Contains(name))
+                        {
+                            k++;
+                        }
                     }
+                    Counter.setData(k);
                 }
                 else
                 {
-                    Counter.setData(filesInfo.Length);
+                    int k = 0;
                     foreach (FileInfo info in filesInfo)
                     {
-                        info.MoveTo(path);
+                        if (info.Name.Contains(name))
+                        {
+                            k++;
+                        }
                     }
+                    Counter.setData(k);
                 }
+                
+            }
+            
+            Thread thread = new Thread(new ThreadStart(Counter.printPercent));
+            thread.Start();
+            if(!System.IO.Directory.Exists(dest))
+            {
+                System.IO.Directory.CreateDirectory(dest);
+            }
+            if (name.Equals("all"))
+            {
+               //TODO complete this task
             }
             else if (filesInfo.Length == 0)
             {
 
-                foreach(DirectoryInfo info in directoryInfo)
+                foreach (DirectoryInfo info in directoryInfo)
                 {
                     if (info.Name.Contains(name))
                     {
-                        Microsoft.VisualBasic.FileIO.FileSystem.CopyDirectory(info.FullName, dest+info.Name);
+                        Microsoft.VisualBasic.FileIO.FileSystem.CopyDirectory(info.FullName, dest + "\\"+info.Name);
                         Counter.countNumber++;
                     }
                 }
@@ -106,12 +119,39 @@ namespace Transport_D_2
                 {
                     if (info.Name.Contains(name))
                     {
-                        Microsoft.VisualBasic.FileIO.FileSystem.CopyDirectory(info.FullName, dest + info.Name);
+                        Microsoft.VisualBasic.FileIO.FileSystem.CopyFile(info.FullName, dest + "\\" + info.Name);
                         Counter.countNumber++;
                     }
                 }
             }
+
             thread.Abort();
+        }
+
+        private static int sumVideoFrom(DirectoryInfo d)
+        {
+            FileInfo[] filesInfo = d.GetFiles();
+            DirectoryInfo[] directoryInfo = d.GetDirectories();
+            int k = 0;
+            if (directoryInfo.Length > 0)
+            {
+           
+                foreach (DirectoryInfo info in directoryInfo)
+                {
+                    k += sumVideoFrom(info);
+                }
+            }
+            if(filesInfo.Length>0)
+            {
+                foreach (FileInfo info in filesInfo)
+                {
+                    if (mediaExtensions.Contains(Path.GetExtension(info.Name), StringComparer.OrdinalIgnoreCase))
+                    {
+                        k++;
+                    }
+                }
+            }
+            return k;
         }
 
         private static string findDest(string name, string nameFile, DirectoryInfo[] destDir)
