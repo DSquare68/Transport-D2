@@ -124,8 +124,9 @@ namespace Transport_D_2
                     }
                 }
             }
-
+            thread.Join();
             thread.Abort();
+            Console.WriteLine();
         }
 
         private static int sumVideoFrom(DirectoryInfo d)
@@ -199,13 +200,31 @@ namespace Transport_D_2
             DirectoryInfo[] directoryInfo = d.GetDirectories();
             String[] namesFile;
             int i = 0;
-            if (filesInfo.Length == 0) { String[] names = new String[directoryInfo.Length]; foreach (DirectoryInfo info in directoryInfo) names[i++] = info.Name; namesFile = showEpisodes(names); } else { String[] names = new String[filesInfo.Length]; foreach (FileInfo info in filesInfo) names[i++] = info.Name; namesFile = showEpisodes(names); }
-            if (name.Equals("all"))
+            if (filesInfo.Length == 0)
             {
+                String[] names = new String[directoryInfo.Length];
+                foreach (DirectoryInfo info in directoryInfo)
+                    names[i++] = info.Name;
+                namesFile = showEpisodes(names);
                 foreach (String s in namesFile)
                 {
                     Console.WriteLine("\t" + s);
                 }
+            }
+            else
+            {
+                String[] names = new String[filesInfo.Length];
+                foreach (FileInfo info in filesInfo)
+                    names[i++] = info.Name;
+                namesFile = showEpisodes(names);
+
+                foreach (String s in namesFile)
+                {
+                    Console.WriteLine("\t" + s);
+                }
+            }
+            if (name.Equals("all"))
+            {
             }
             else
             {
@@ -221,6 +240,8 @@ namespace Transport_D_2
             
             String path = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             DirectoryInfo d = new DirectoryInfo(path+"\\"+name);
+            if (d == null)
+                Console.WriteLine("Directory is missing");
             FileInfo[] filesInfo = d.GetFiles();
             DirectoryInfo[] directoryInfo = d.GetDirectories();
             String[] namesFile;
@@ -421,7 +442,11 @@ namespace Transport_D_2
 
         public static void help()
         {
-            Console.WriteLine("trasport-przenosi pliki z source_forder_name do destination_path nazwa- nazwy lub nazwa do przeniesienia w przypadku serialu wszystkie episody all - wszytkie \ndrives - lista urządzeń \nshow - pokazuje nazwy seriali \nepisodes - pokazuje listę odcinków");
+            Console.WriteLine("trasport <name> <source_forder_name> <destination_path> \n" +
+                                "\t-all - wszytkie pliki z folderów: Anime, Filmy, Seriale " +
+                                "\ndrivers [-details] " +
+                                "\nshow <source_forder_name> - pokazuje nazwy seriali " +
+                                "\nepisodes <name> <source_folder_name> - pokazuje listę odcinków");
         }
     }
 }

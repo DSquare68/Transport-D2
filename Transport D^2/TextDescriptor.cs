@@ -24,6 +24,8 @@ namespace Transport_D_2
         {
             StringReader reader = new StringReader(text);
             String[] words = reader.ReadToEnd().Split(' ');
+            words=join(words);
+            words= words.Where(x => !string.IsNullOrEmpty(x)).ToArray();
             switch (words[0])
             {
                 case "transport":
@@ -52,6 +54,30 @@ namespace Transport_D_2
                     Console.WriteLine("Wrong word");
                     break;
             }
+        }
+
+        private string[] join(string[] words)
+        {
+            string[] result = new string[words.Length];
+            int k = 0;
+            for (int i = 0; i < words.Length; i++)
+            {
+                if (words[i].StartsWith("\'"))
+                {
+                    result[k] += words[i] + " ";
+                    while (!words[++i].EndsWith("\'"))
+                    {
+                        result[k] += words[i] + " ";
+                    }
+                    result[k] += words[i];
+                    result[k++].Replace("'" + 1, "");
+                }
+                else
+                {
+                    result[k++] = words[i];
+                }
+            }
+            return result;
         }
 
         private void DescriptTransport(string[] words)
