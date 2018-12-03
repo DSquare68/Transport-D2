@@ -205,33 +205,25 @@ namespace Transport_D_2
                 String[] names = new String[directoryInfo.Length];
                 foreach (DirectoryInfo info in directoryInfo)
                     names[i++] = info.Name;
-                namesFile = showEpisodes(names);
-                foreach (String s in namesFile)
-                {
-                    Console.WriteLine("\t" + s);
-                }
+                namesFile = showEpisodes(names,name);
             }
             else
             {
                 String[] names = new String[filesInfo.Length];
                 foreach (FileInfo info in filesInfo)
                     names[i++] = info.Name;
-                namesFile = showEpisodes(names);
-
-                foreach (String s in namesFile)
-                {
-                    Console.WriteLine("\t" + s);
-                }
+                namesFile = showEpisodes(names,name);
             }
             if (name.Equals("all"))
             {
             }
             else
             {
-                foreach (String s in namesFile)
-                {
-                    if (s.Contains(name)) Console.WriteLine("\t" + s);
-                }
+               
+            }
+            foreach (String s in namesFile)
+            {
+                if (s.Contains(name)) Console.WriteLine("\t" + s);
             }
         }
 
@@ -315,15 +307,18 @@ namespace Transport_D_2
                     }
                 }
             }
+            namesFile = namesFile.Where(e => !string.IsNullOrEmpty(e)).ToArray();
             return namesFile;
         }
 
-        private static string[] showEpisodes(String[] filesInfo)
+        private static string[] showEpisodes(String[] filesInfo,String name)
         {
             String[] namesFile = new String[filesInfo.Length];
             int namesCount = 0;
             foreach (String info in filesInfo)
             {
+                if (!info.Contains(name)) continue;
+
                 StringReader reader = new StringReader(info);
                 if (reader.Read() == '[')
                 {
@@ -380,6 +375,7 @@ namespace Transport_D_2
                     
                 }
             }
+            namesFile = namesFile.Where(e => !string.IsNullOrEmpty(e)).ToArray();
             return namesFile;
         }
 
